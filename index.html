@@ -395,26 +395,26 @@
       const hour = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
 
-      // Generate the filename
+      // Filename
       const filename = `${gameName}-${year}-${month}-${day}-${hour}-${minutes}.json`;
 
 
-      // Open the IndexedDB
+      // Open Index DB
       const request = indexedDB.open(dbName);
       request.onsuccess = async function (event) {
         const db = event.target.result;
         const transaction = db.transaction([storeName], 'readonly');
         const store = transaction.objectStore(storeName);
 
-        // Get all data from the store
+        // Get store data
         const dataRequest = store.getAll();
         dataRequest.onsuccess = function () {
-          const allKeysRequest = store.getAllKeys(); // Get all keys
+          const allKeysRequest = store.getAllKeys();
           allKeysRequest.onsuccess = function () {
             const keys = allKeysRequest.result;
             const values = dataRequest.result;
 
-            // Combine keys and values into an array of objects
+            // Get keys and values dict
             const data = keys.map((key, index) => ({
               key: key,
               value: values[index]
@@ -423,11 +423,11 @@
             // Convert data to JSON
             const jsonData = JSON.stringify(data);
 
-            // Create a Blob from the JSON data
+            // Create a JSON Blob
             const blob = new Blob([jsonData], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 
-            // Create a link element and trigger a download
+            // Create a link element and trigger download
             const a = document.createElement('a');
             a.href = url;
             a.download = filename;
@@ -435,15 +435,12 @@
             a.click();
             document.body.removeChild(a);
 
-            // Clean up the URL object
+            // Kill object
             URL.revokeObjectURL(url);
           };
           allKeysRequest.onerror = function () {
             console.error('Failed to retrieve keys from IndexedDB.');
           };
-          // keys.close();
-          // values.close();
-          // console.log('DB Closed.');
         };
         dataRequest.onerror = function () {
           console.error('Failed to retrieve data from IndexedDB.');
@@ -487,7 +484,7 @@
           return;
         }
 
-        // Open the IndexedDB
+        // Open IndexedDB
         const request = indexedDB.open(dbName);
         request.onsuccess = function (event) {
           const db = event.target.result;
