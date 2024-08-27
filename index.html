@@ -133,7 +133,7 @@
       background-color: rgba(0, 0, 0, 0.4);
     }
 
-    .modal-content {
+    .modal-content-controls {
       background-color: #070707;
       margin: 15% auto;
       padding: 20px;
@@ -163,6 +163,25 @@
       font-family: monospace;
     }
 
+    /* Newer */
+
+    .modal-content-credits {
+      background-color: #000000;
+      margin: 1% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      /* max-height: 80vh; */
+      overflow-y: auto;
+    }
+
+    .blockquote {
+      border: 1px solid white;
+      padding: 10px;
+      margin: 10px 0;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
     /* End New */
   </style>
 </head>
@@ -187,10 +206,25 @@
   </div>
 
   <div id="controlsModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content-controls">
       <span class="close">&times;</span>
       <h2>Game Controls</h2>
       <pre id="controlsText"></pre>
+    </div>
+  </div>
+
+  <div id="controls">
+    <img
+      src="data:image/svg+xml;base64,PHN2ZyB2aWV3Ym94PSIwIDAgMTUgMTUiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjI1IiBoZWlnaHQ9IjI1Ij48cGF0aCBkPSJNMTMuNSAxMy41SDEwbTMuNSAwVjEwbTAgMy41bC00LTRtLjUtOGgzLjVtMCAwVjVtMC0zLjVsLTQgNE01IDEuNUgxLjVtMCAwVjVtMC0zLjVsNCA0bS00IDQuNXYzLjVtMCAwSDVtLTMuNSAwbDQtNCIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiPjwvcGF0aD48L3N2Zz4="
+      alt="Controls">
+    <button id="showCredits">Credits</button>
+  </div>
+
+  <div id="creditsModal" class="modal">
+    <div class="modal-content-credits">
+      <span class="close">&times;</span>
+      <h2>Credits</h2>
+      <div id="creditsContent"></div>
     </div>
   </div>
 
@@ -228,9 +262,56 @@ Download/Upload save: [Shift] in save menu.`;
       }
     });
 
-    // Initial setup: hide the modal
     modal.style.display = 'none';
 
+  </script>
+
+  <script>
+
+    var creditsModal = document.getElementById("creditsModal");
+    var creditsBtn = document.getElementById("showCredits");
+    var creditsSpan = creditsModal.querySelector(".close");
+    var creditsContent = document.getElementById("creditsContent");
+
+    creditsBtn.onclick = function () {
+      creditsModal.style.display = "block";
+
+      fetch('README.md')
+        .then(response => response.text())
+        .then(data => {
+          var html = data
+            .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+            .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+            .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+            .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+            .replace(/\*(.*)\*/gim, '<em>$1</em>')
+            .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
+            // Group consecutive blockquotes
+            .replace(/(^>.*$\n?)+/gim, function (match) {
+              return '<div class="blockquote">' + match.replace(/^>/gm, '') + '</div>';
+            })
+            .replace(/\n/gim, '<br>');
+
+          creditsContent.innerHTML = html;
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          creditsContent.innerHTML = 'Error loading credits.';
+        });
+    }
+
+    creditsSpan.onclick = function () {
+      creditsModal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+      if (event.target == controlsModal) {
+        controlsModal.style.display = "none";
+      }
+      if (event.target == creditsModal) {
+        creditsModal.style.display = "none";
+      }
+    }
   </script>
 
   <!-- End New -->
